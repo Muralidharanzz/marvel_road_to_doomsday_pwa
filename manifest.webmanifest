@@ -1,14 +1,21 @@
 {
   "name": "Marvel: Road to Doomsday",
   "short_name": "Marvel Doomsday",
-  "description": "149-project Marvel completionist journey to Avengers: Doomsday.",
+  "description": "161-project Marvel completionist journey to Avengers: Doomsday & Secret Wars. Track every movie, series, special & one-shot.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#050507",
   "theme_color": "#050507",
+  "categories": ["entertainment", "lifestyle"],
   "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
@@ -20,6 +27,20 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "All Projects",
+      "short_name": "Projects",
+      "url": "./#projects",
+      "description": "Browse all 161 Marvel projects"
+    },
+    {
+      "name": "Doomsday Run",
+      "short_name": "Doomsday",
+      "url": "./#final",
+      "description": "Essential Doomsday rewatch guide"
     }
   ]
 }
