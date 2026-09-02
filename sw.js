@@ -3,12 +3,12 @@
  * Network-first for HTML/JS/CSS to ensure instant updates, Cache fallback for offline
  */
 
-const CACHE_NAME = 'marvel-doomsday-v3.0.1';
+const CACHE_NAME = 'marvel-doomsday-v3.0.2';
 const APP_ASSETS = [
   './',
   './index.html',
-  './styles.css?v=3',
-  './app.js?v=3',
+  './styles.css?v=3.1',
+  './app.js?v=3.1',
   './manifest.webmanifest',
   './icons/icon.svg',
   './icons/icon-192.png',

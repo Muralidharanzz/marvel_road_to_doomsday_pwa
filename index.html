@@ -16,7 +16,7 @@
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=3.1">
   <title>Marvel — Road to Doomsday | Complete Checklist</title>
 </head>
 <body>
@@ -192,6 +192,14 @@
               <input class="search-input" id="searchInput" type="search" placeholder="Search by title, actor, universe..." autocomplete="off">
               <button class="clear-search-btn" id="clearSearchBtn" aria-label="Clear search" style="display:none;">✕</button>
             </div>
+            <select id="sortOrderMainSelect" class="filter-select glass sort-main-select" title="Change Sort Order">
+              <option value="release">🗓️ Release Order (01 → 14)</option>
+              <option value="chronological">⏳ Chronological Timeline</option>
+              <option value="doomsday">🔥 Doomsday Fast Track</option>
+              <option value="year-asc">📅 Year (Oldest First)</option>
+              <option value="year-desc">📅 Year (Newest First)</option>
+              <option value="alpha">🔤 Title (A → Z)</option>
+            </select>
             <button class="filter-btn glass" id="filterToggle">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
@@ -601,6 +609,6 @@
     </div>
   </nav>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=3.1"></script>
 </body>
 </html>

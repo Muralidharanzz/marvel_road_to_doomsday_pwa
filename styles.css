@@ -1832,7 +1832,44 @@ button.nav-btn.active svg {
 /* V3 UPGRADES: DESKTOP LAYOUT, PROFILE, MODAL & VISUALS      */
 /* ══════════════════════════════════════════════════════════ */
 
-/* 1. Desktop Two-Column Layout (sidebar + content) */
+/* 1. Desktop & Mobile Layout Configuration */
+.desktop-sidebar {
+  display: none;
+}
+
+.content-area {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.sort-main-select {
+  height: 46px;
+  border-radius: 13px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  outline: none;
+}
+
+@media (max-width: 899px) {
+  .search-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+  }
+  
+  .sort-main-select {
+    max-width: 150px;
+    font-size: 11.5px;
+    padding: 0 8px;
+  }
+}
+
 @media (min-width: 900px) {
   body {
     display: flex;
@@ -1842,9 +1879,9 @@ button.nav-btn.active svg {
   
   .app {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 280px 1fr;
     grid-template-rows: auto 1fr;
-    max-width: 1200px;
+    max-width: 1280px;
     width: 100%;
     min-height: 100vh;
     align-items: start;
@@ -1854,25 +1891,35 @@ button.nav-btn.active svg {
     grid-column: 1 / -1;
     position: sticky;
     top: 0;
+    z-index: 50;
   }
   
   .desktop-sidebar {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     gap: 16px;
-    padding: 20px 16px;
+    padding: 24px 18px;
     position: sticky;
     top: 63px;
     height: calc(100vh - 63px);
     overflow-y: auto;
     border-right: 1px solid var(--border);
-    background: rgba(14, 16, 20, 0.4);
+    background: rgba(14, 16, 20, 0.7);
     backdrop-filter: blur(16px);
   }
   
   .content-area {
+    display: block !important;
+    width: 100%;
+    min-width: 0;
     overflow-y: auto;
-    padding-bottom: 40px;
+    padding: 0 20px 40px;
+  }
+  
+  .search-row {
+    display: grid;
+    grid-template-columns: 1fr 240px auto;
+    gap: 10px;
   }
   
   .bottom-nav {
@@ -1883,7 +1930,7 @@ button.nav-btn.active svg {
     border-radius: 20px;
     max-height: 88vh;
     margin-bottom: 20px;
-    max-width: 640px;
+    max-width: 660px;
   }
   
   .project-card:hover {
@@ -1891,14 +1938,6 @@ button.nav-btn.active svg {
     background: rgba(255,255,255,0.04);
     box-shadow: -4px 0 16px rgba(225,18,27,0.2);
   }
-}
-
-.desktop-sidebar {
-  display: none;
-}
-
-.content-area {
-  display: contents;
 }
 
 /* 2. Desktop Sidebar Components */

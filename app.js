@@ -3159,6 +3159,8 @@ const projects = rawProjects.map(r => {
   };
 });
 
+const sectionKeysOrdered = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14'];
+
 function escapeHtml(str) {
   return String(str || '').replace(/[&<>"']/g, m => ({
     '&': '&amp;',
@@ -3226,6 +3228,12 @@ function render() {
   const selectedFormat = filterFormat ? filterFormat.value : 'all';
   const activeChip = settings.activeChip || 'all';
 
+  // Sync main sort selector
+  const sortSelect = document.getElementById('sortOrderMainSelect');
+  if (sortSelect && settings.orderMode) {
+    sortSelect.value = settings.orderMode;
+  }
+
   // Toggle clear search button visibility
   const clearSearchBtn = document.getElementById('clearSearchBtn');
   if (clearSearchBtn) {
@@ -3257,15 +3265,25 @@ function render() {
     return true;
   });
 
-  // Sort order if chronological or doomsday
-  if (settings.orderMode === 'chronological') {
+  // Sorting
+  const mode = settings.orderMode || 'release';
+  if (mode === 'chronological') {
     filtered = [...filtered].sort((a, b) => a.chronoOrder - b.chronoOrder);
-  } else if (settings.orderMode === 'doomsday') {
+  } else if (mode === 'doomsday') {
     filtered = [...filtered].sort((a, b) => {
       if (a.doomsdayRun && !b.doomsdayRun) return -1;
       if (!a.doomsdayRun && b.doomsdayRun) return 1;
       return a.n - b.n;
     });
+  } else if (mode === 'year-asc') {
+    filtered = [...filtered].sort((a, b) => (a.year || 9999) - (b.year || 9999));
+  } else if (mode === 'year-desc') {
+    filtered = [...filtered].sort((a, b) => (b.year || 0) - (a.year || 0));
+  } else if (mode === 'alpha') {
+    filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
+  } else {
+    // Release Order (by sequential number n)
+    filtered = [...filtered].sort((a, b) => a.n - b.n);
   }
 
   // Render into DOM
@@ -3280,15 +3298,16 @@ function render() {
     return;
   }
 
-  // Group by Section (in release mode) or Single Unified List
-  if (settings.orderMode === 'release') {
+  // Group by Section in release mode or Single Unified List for other sort modes
+  if (mode === 'release') {
     const grouped = {};
     filtered.forEach(p => {
       if (!grouped[p.section]) grouped[p.section] = [];
       grouped[p.section].push(p);
     });
 
-    Object.keys(sections).forEach(secKey => {
+    // Iterate through EXPLICIT ordered section keys 01 -> 14
+    sectionKeysOrdered.forEach(secKey => {
       const list = grouped[secKey];
       if (!list || list.length === 0) return;
 
@@ -3327,7 +3346,7 @@ function render() {
       projectList.appendChild(sectionEl);
     });
   } else {
-    // Flat list for Chronological or Doomsday Order
+    // Flat list for Chronological, Doomsday, Year, or Alpha Order
     const listContainer = document.createElement('div');
     listContainer.className = 'unified-project-list';
     filtered.forEach(p => listContainer.appendChild(createProjectCard(p)));
@@ -4101,6 +4120,16 @@ document.addEventListener('DOMContentLoaded', () => {
       e.currentTarget.classList.add('active');
       render();
     });
+  });
+
+  // Sort Order Main Selector
+  document.getElementById('sortOrderMainSelect')?.addEventListener('change', (e) => {
+    const order = e.target.value;
+    settings.orderMode = order;
+    saveSettings();
+    document.querySelectorAll('.order-tab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-order') === order));
+    render();
+    showToast(`Sorted by: ${e.target.options[e.target.selectedIndex].text}`);
   });
 
   // Watch Order selector in Phases tab
