@@ -9,16 +9,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Marvel Doomsday">
-
-  <!-- Open Graph -->
   <meta property="og:title" content="Marvel — Road to Doomsday">
   <meta property="og:description" content="Track 161 Marvel projects on your journey to Avengers: Doomsday. Movies, series, specials & more.">
   <meta property="og:type" content="website">
-
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <title>Marvel — Road to Doomsday | Complete Checklist</title>
 </head>
@@ -29,7 +26,7 @@
     <!-- ═══════ TOP BAR ═══════ -->
     <header class="topbar" id="topbar">
       <div class="topbar-inner">
-        <div class="brand">
+        <div class="brand" onclick="switchTab('tracker'); window.scrollTo({top:0, behavior:'smooth'})" role="button" tabindex="0" title="Home">
           <div class="brand-logo-wrap">
             <svg class="brand-logo" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
               <rect width="40" height="40" rx="10" fill="#e1121b"/>
@@ -41,150 +38,461 @@
             <span>ROAD TO DOOMSDAY</span>
           </div>
         </div>
-        <button class="icon-btn" id="installTopBtn" title="Install App" aria-label="Install App">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-        </button>
+        <div class="topbar-actions">
+          <button class="icon-btn-text" id="quickNextTopBtn" onclick="switchTab('upnext')" title="Up Next">
+            <span class="pulse-dot"></span> Up Next
+          </button>
+          <button class="icon-btn" id="installTopBtn" title="Install App" aria-label="Install App">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </header>
 
-    <!-- ═══════ HERO ═══════ -->
-    <section class="hero" id="home">
-      <div class="hero-grid">
-        <div class="hero-icon-wrap">
-          <svg class="hero-icon" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-            <rect width="80" height="80" rx="20" fill="#e1121b"/>
-            <path fill="#fff" d="M16 64V16h10l14 34 14-34h10v48h-10V28l-10 26h-8L26 28v36z"/>
-          </svg>
-        </div>
+    <!-- ═══════ DESKTOP SIDEBAR (hidden on mobile via CSS) ═══════ -->
+    <aside class="desktop-sidebar">
+      <!-- Mini profile card -->
+      <div class="sidebar-profile-mini" onclick="switchTab('profile')">
+        <span class="sidebar-avatar-big" id="sidebarAvatar">🦸</span>
         <div>
-          <h1 class="hero-title">Welcome, <span class="accent">Hero.</span> 🤜🏻</h1>
-          <p class="tagline">Every story. Every universe. <b class="accent">One destination.</b></p>
+          <div class="sidebar-user-name" id="sidebarName">Marvel Fan</div>
+          <div class="sidebar-user-sub" id="sidebarSub">0/161 watched</div>
         </div>
       </div>
 
-      <!-- Overall Progress -->
-      <div class="progress-card glass">
-        <div class="progress-top">
-          <div class="progress-count">
-            <span class="progress-done" id="doneCount">0</span>
-            <span class="progress-total"> / <span id="totalCount">161</span></span>
-          </div>
-          <div class="progress-pct accent" id="progressPct">0%</div>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-card glass">
-            <b id="statProjects">161</b>
-            <span>Projects</span>
-          </div>
-          <div class="stat-card glass">
-            <b>14</b>
-            <span>Stages</span>
-          </div>
-          <div class="stat-card glass">
-            <b id="statRemaining">161</b>
-            <span>Remaining</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Saga Progress -->
-      <div class="saga-row">
-        <div class="saga-card glass saga-infinity">
-          <svg class="saga-ring" viewBox="0 0 36 36">
-            <path class="ring-bg"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-            <path class="ring-fill" id="infinityArc" stroke-dasharray="0, 100"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-          </svg>
-          <div class="saga-info">
-            <span class="saga-pct" id="infinityPct">0%</span>
-            <b>Infinity Saga</b>
-            <span class="saga-sub">Phases 1–3</span>
-          </div>
-        </div>
-        <div class="saga-card glass saga-multiverse">
-          <svg class="saga-ring" viewBox="0 0 36 36">
-            <path class="ring-bg"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-            <path class="ring-fill" id="multiverseArc" stroke-dasharray="0, 100"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-          </svg>
-          <div class="saga-info">
-            <span class="saga-pct" id="multiversePct">0%</span>
-            <b>Multiverse Saga</b>
-            <span class="saga-sub">Phases 4–6</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══════ CONTROLS ═══════ -->
-    <section class="controls" id="projects">
-      <div class="search-row">
-        <div class="search-wrap glass">
-          <svg class="search-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.3-4.3"/>
-          </svg>
-          <input class="search-input" id="searchInput" type="search" placeholder="Search projects..." autocomplete="off">
-        </div>
-        <button class="filter-btn glass" id="filterToggle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-          </svg>
-          Filter
+      <!-- Sidebar navigation -->
+      <nav class="sidebar-nav">
+        <button class="sidebar-nav-btn active" data-tab="tracker">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Watch Tracker
         </button>
+        <button class="sidebar-nav-btn" data-tab="upnext">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+          Up Next
+        </button>
+        <button class="sidebar-nav-btn" data-tab="phases">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+          Universe Map
+        </button>
+        <button class="sidebar-nav-btn" data-tab="stats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Stats & Trophies
+        </button>
+        <button class="sidebar-nav-btn" data-tab="profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          My Profile
+        </button>
+      </nav>
+
+      <!-- Saga mini progress -->
+      <div class="sidebar-saga-mini">
+        <h4>⚡ Saga Progress</h4>
+        <div class="sidebar-saga-row">
+          <span class="sidebar-saga-name">🔴 Infinity Saga</span>
+          <span class="sidebar-saga-pct" id="sidebarInfinityPct">0%</span>
+        </div>
+        <div class="sidebar-saga-row">
+          <span class="sidebar-saga-name">🔵 Multiverse Saga</span>
+          <span class="sidebar-saga-pct" id="sidebarMultiversePct">0%</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══════ MAIN CONTENT AREA ═══════ -->
+    <div class="content-area">
+
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- TAB 1: TRACKER (MAIN FEED)                                 -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="tab-view active" id="view-tracker">
+        <!-- ═══════ HERO ═══════ -->
+        <section class="hero" id="home">
+          <div class="hero-grid">
+            <div class="hero-icon-wrap">
+              <svg class="hero-icon" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                <rect width="80" height="80" rx="20" fill="#e1121b"/>
+                <path fill="#fff" d="M16 64V16h10l14 34 14-34h10v48h-10V28l-10 26h-8L26 28v36z"/>
+              </svg>
+            </div>
+            <div>
+              <h1 class="hero-title">Welcome, <span class="accent">Hero.</span> 🤜🏻</h1>
+              <p class="tagline">Every story. Every universe. <b class="accent">One destination.</b></p>
+            </div>
+          </div>
+
+          <!-- Overall Progress Card -->
+          <div class="progress-card glass">
+            <div class="progress-top">
+              <div class="progress-count">
+                <span class="progress-done" id="doneCount">0</span>
+                <span class="progress-total"> / <span id="totalCount">161</span></span>
+              </div>
+              <div class="progress-pct accent" id="progressPct">0%</div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="stats-grid">
+              <div class="stat-card glass" onclick="switchTab('stats')" role="button" tabindex="0" title="View Detailed Stats">
+                <b id="statProjects">0</b>
+                <span>Watched</span>
+              </div>
+              <div class="stat-card glass" onclick="switchTab('phases')" role="button" tabindex="0" title="View Universe Map">
+                <b>14</b>
+                <span>Phases</span>
+              </div>
+              <div class="stat-card glass" onclick="filterUnwatchedOnly()" role="button" tabindex="0" title="Filter Unwatched">
+                <b id="statRemaining">161</b>
+                <span>Remaining</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Saga Progress -->
+          <div class="saga-row">
+            <div class="saga-card glass saga-infinity">
+              <svg class="saga-ring" viewBox="0 0 36 36">
+                <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <path class="ring-fill" id="infinityArc" stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              </svg>
+              <div class="saga-info">
+                <span class="saga-pct" id="infinityPct">0%</span>
+                <b>Infinity Saga</b>
+                <span class="saga-sub">Phases 1–3</span>
+              </div>
+            </div>
+            <div class="saga-card glass saga-multiverse">
+              <svg class="saga-ring" viewBox="0 0 36 36">
+                <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <path class="ring-fill" id="multiverseArc" stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              </svg>
+              <div class="saga-info">
+                <span class="saga-pct" id="multiversePct">0%</span>
+                <b>Multiverse Saga</b>
+                <span class="saga-sub">Phases 4–6</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════ CONTROLS & FILTER CHIPS ═══════ -->
+        <section class="controls" id="projects">
+          <div class="search-row">
+            <div class="search-wrap glass">
+              <svg class="search-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+              </svg>
+              <input class="search-input" id="searchInput" type="search" placeholder="Search by title, actor, universe..." autocomplete="off">
+              <button class="clear-search-btn" id="clearSearchBtn" aria-label="Clear search" style="display:none;">✕</button>
+            </div>
+            <button class="filter-btn glass" id="filterToggle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              Filter
+            </button>
+          </div>
+
+          <!-- Quick Filter Chips -->
+          <div class="quick-chips-row">
+            <button class="chip active" data-chip="all">All (161)</button>
+            <button class="chip" data-chip="unwatched">⏳ Unwatched</button>
+            <button class="chip" data-chip="doomsday">🔥 Doomsday Run</button>
+            <button class="chip" data-chip="movies">🎬 Movies</button>
+            <button class="chip" data-chip="series">📺 Series</button>
+            <button class="chip" data-chip="critical">🔴 Critical</button>
+          </div>
+
+          <div class="filter-panel" id="filterPanel">
+            <div class="filter-panel-grid">
+              <div class="filter-group">
+                <label for="filterRank">Rank / Priority</label>
+                <select id="filterRank" class="filter-select glass">
+                  <option value="all">All Ranks</option>
+                  <option value="Doomsday Critical">🔴 Doomsday Critical</option>
+                  <option value="Essential">🟠 Essential</option>
+                  <option value="Recommended">🟡 Recommended</option>
+                  <option value="Side Quest">🔵 Side Quest</option>
+                  <option value="Completionist">⚪ Completionist</option>
+                  <option value="Finale">🟢 Finale</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="filterFormat">Format Type</label>
+                <select id="filterFormat" class="filter-select glass">
+                  <option value="all">All Formats</option>
+                  <option value="Movie">🎬 Movie</option>
+                  <option value="Series">📺 Series</option>
+                  <option value="Special">⭐ Special</option>
+                  <option value="One-Shot">🎞️ One-Shot</option>
+                  <option value="Short">🎬 Short</option>
+                </select>
+              </div>
+            </div>
+            <div class="filter-panel-actions">
+              <button class="filter-reset-btn" id="filterResetBtn">Clear All Filters</button>
+            </div>
+          </div>
+
+          <div class="legend-row" id="legendRow">
+            <span class="legend-item"><i class="dot dot-critical"></i>DOOMSDAY CRITICAL</span>
+            <span class="legend-item"><i class="dot dot-essential"></i>ESSENTIAL</span>
+            <span class="legend-item"><i class="dot dot-recommended"></i>RECOMMENDED</span>
+            <span class="legend-item"><i class="dot dot-sidequest"></i>SIDE QUEST</span>
+            <span class="legend-item"><i class="dot dot-completionist"></i>COMPLETIONIST</span>
+            <span class="legend-item"><i class="dot dot-finale"></i>FINALE</span>
+          </div>
+        </section>
+
+        <!-- ═══════ PROJECT LIST (JS-rendered) ═══════ -->
+        <main id="projectList"></main>
+
+        <!-- ═══════ DOOMSDAY NOTE ═══════ -->
+        <div class="doomsday-note glass" id="final">
+          🔥 <b>FINAL DOOMSDAY RUN:</b> Civil War → Doctor Strange → Ragnarok → Infinity War → Endgame → Loki S1 → Loki S2 → No Way Home → Multiverse of Madness → Deadpool &amp; Wolverine → Fantastic Four: First Steps → <b class="accent">AVENGERS: DOOMSDAY</b>
+        </div>
       </div>
 
-      <div class="filter-panel" id="filterPanel">
-        <select id="filterRank" class="filter-select glass">
-          <option value="all">All Ranks</option>
-          <option value="Doomsday Critical">🔴 Doomsday Critical</option>
-          <option value="Essential">🟠 Essential</option>
-          <option value="Recommended">🟡 Recommended</option>
-          <option value="Side Quest">🔵 Side Quest</option>
-          <option value="Completionist">⚪ Completionist</option>
-          <option value="Finale">🟢 Finale</option>
-        </select>
-        <select id="filterFormat" class="filter-select glass">
-          <option value="all">All Formats</option>
-          <option value="Movie">🎬 Movie</option>
-          <option value="Series">📺 Series</option>
-          <option value="Special">⭐ Special</option>
-          <option value="One-Shot">🎞️ One-Shot</option>
-          <option value="Short">🎬 Short</option>
-        </select>
-        <button class="essential-run-btn" id="essentialRunBtn">🔥 Essential Doomsday Run</button>
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- TAB 2: UP NEXT & WATCH ROULETTE                            -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="tab-view" id="view-upnext">
+        <div class="tab-header">
+          <div class="tab-header-icon">⚡</div>
+          <div>
+            <h2 class="tab-title">Up Next to Watch</h2>
+            <p class="tab-subtitle">Your personalized roadmap to Avengers: Doomsday</p>
+          </div>
+        </div>
+        <div id="upNextHeroContainer"></div>
+        <div class="roulette-card glass">
+          <div class="roulette-header">
+            <div class="roulette-title-wrap">
+              <span class="roulette-icon">🎲</span>
+              <div>
+                <h3>Multiverse Watch Roulette</h3>
+                <p>Can't decide what to watch? Spin for a random unwatched project!</p>
+              </div>
+            </div>
+            <button class="spin-btn" id="rouletteSpinBtn">⚡ Spin Random</button>
+          </div>
+          <div class="roulette-result" id="rouletteResult" style="display:none;"></div>
+        </div>
+        <div class="section-label">
+          <h3>Upcoming In Queue</h3>
+          <span class="badge-sub" id="queueRemainingCount">Next 5 Projects</span>
+        </div>
+        <div class="queue-list" id="queueList"></div>
       </div>
 
-      <div class="legend-row" id="legendRow">
-        <span class="legend-item"><i class="dot dot-critical"></i>DOOMSDAY CRITICAL</span>
-        <span class="legend-item"><i class="dot dot-essential"></i>ESSENTIAL</span>
-        <span class="legend-item"><i class="dot dot-recommended"></i>RECOMMENDED</span>
-        <span class="legend-item"><i class="dot dot-sidequest"></i>SIDE QUEST</span>
-        <span class="legend-item"><i class="dot dot-completionist"></i>COMPLETIONIST</span>
-        <span class="legend-item"><i class="dot dot-finale"></i>FINALE</span>
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- TAB 3: UNIVERSE MAP / PHASES                               -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="tab-view" id="view-phases">
+        <div class="tab-header">
+          <div class="tab-header-icon">🗺️</div>
+          <div>
+            <h2 class="tab-title">Universe Map</h2>
+            <p class="tab-subtitle">Explore phases, switch timeline orders, teleport to any stage</p>
+          </div>
+        </div>
+        <div class="order-selector-card glass">
+          <h3>Choose Timeline Order</h3>
+          <p class="order-desc">Select how the project checklist is organized:</p>
+          <div class="order-tabs">
+            <button class="order-tab-btn active" data-order="release">
+              <b>🗓️ Release Order</b>
+              <span>Classic theatrical release journey (Default)</span>
+            </button>
+            <button class="order-tab-btn" data-order="chronological">
+              <b>⏳ In-Universe Chronology</b>
+              <span>Story timeline from 1942 → Multiverse</span>
+            </button>
+            <button class="order-tab-btn" data-order="doomsday">
+              <b>🔥 Doomsday Fast Track</b>
+              <span>Direct speedrun path to Doctor Doom</span>
+            </button>
+          </div>
+        </div>
+        <div class="section-label">
+          <h3>Phase Teleporter (14 Stages)</h3>
+          <span class="badge-sub">Tap any card to jump</span>
+        </div>
+        <div class="phases-grid" id="phasesJumpGrid"></div>
       </div>
-    </section>
 
-    <!-- ═══════ PROJECT LIST (JS-rendered) ═══════ -->
-    <main id="projectList"></main>
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- TAB 4: STATS & TROPHIES                                    -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="tab-view" id="view-stats">
+        <div class="tab-header">
+          <div class="tab-header-icon">📊</div>
+          <div>
+            <h2 class="tab-title">Multiverse Analytics</h2>
+            <p class="tab-subtitle">Runtime metrics, universe breakdowns & achievement badges</p>
+          </div>
+        </div>
+        <div class="time-stats-grid">
+          <div class="time-card glass">
+            <span class="time-label">⏱️ Watch Time Logged</span>
+            <b class="time-value" id="statsHoursWatched">0 hrs</b>
+            <span class="time-sub" id="statsWatchedDays">0.0 days of Marvel</span>
+          </div>
+          <div class="time-card glass">
+            <span class="time-label">⏳ Watch Time Remaining</span>
+            <b class="time-value" id="statsHoursRemaining">350 hrs</b>
+            <span class="time-sub" id="statsRemainingDays">~14.5 days to complete</span>
+          </div>
+        </div>
+        <div class="stats-card glass">
+          <h3>🌌 Franchise Breakdown</h3>
+          <div class="universe-bars" id="universeBreakdownBars"></div>
+        </div>
+        <div class="stats-card glass">
+          <h3>🎬 Format Breakdown</h3>
+          <div class="format-grid" id="formatBreakdownGrid"></div>
+        </div>
+        <div class="stats-card glass">
+          <div class="achievements-header">
+            <div>
+              <h3>🏆 Multiverse Trophies</h3>
+              <p class="tab-subtitle" id="trophiesUnlockedCount">0 of 12 Unlocked</p>
+            </div>
+          </div>
+          <div class="trophies-grid" id="trophiesGrid"></div>
+        </div>
+      </div>
 
-    <!-- ═══════ DOOMSDAY NOTE ═══════ -->
-    <div class="doomsday-note glass" id="final">
-      🔥 <b>FINAL DOOMSDAY RUN:</b> Civil War → Doctor Strange → Ragnarok → Infinity War → Endgame → Loki S1 → Loki S2 → No Way Home → Multiverse of Madness → Deadpool &amp; Wolverine → Fantastic Four: First Steps → <b class="accent">AVENGERS: DOOMSDAY</b>
-    </div>
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- TAB 5: MY PROFILE (NEW)                                    -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="tab-view" id="view-profile">
+        <div class="tab-header">
+          <div class="tab-header-icon">👤</div>
+          <div>
+            <h2 class="tab-title">My Marvel Profile</h2>
+            <p class="tab-subtitle">Your identity, progress stats, trophies & settings hub</p>
+          </div>
+        </div>
+
+        <!-- Profile Hero Card -->
+        <div class="profile-hero-card">
+          <span class="profile-avatar-display" id="profileAvatarDisplay" title="Tap to change avatar">🦸</span>
+          <div class="avatar-picker" id="avatarPicker">
+            <span class="avatar-option" data-avatar="🦸">🦸</span>
+            <span class="avatar-option" data-avatar="🕷️">🕷️</span>
+            <span class="avatar-option" data-avatar="🛡️">🛡️</span>
+            <span class="avatar-option" data-avatar="⚡">⚡</span>
+            <span class="avatar-option" data-avatar="🔱">🔱</span>
+            <span class="avatar-option" data-avatar="💎">💎</span>
+            <span class="avatar-option" data-avatar="🌀">🌀</span>
+            <span class="avatar-option" data-avatar="🔥">🔥</span>
+            <span class="avatar-option" data-avatar="❄️">❄️</span>
+            <span class="avatar-option" data-avatar="🤖">🤖</span>
+          </div>
+          <div class="profile-hero-name" id="profileHeroNameDisplay">Hero (tap Edit to set name)</div>
+          <input class="profile-hero-name-input" id="profileHeroNameInput" type="text" placeholder="Enter your hero name..." maxlength="32">
+          <div class="profile-join-date" id="profileJoinDate"></div>
+          <button class="profile-edit-btn" id="profileEditBtn">✏️ Edit Name</button>
+        </div>
+
+        <!-- Profile Stats Grid -->
+        <div class="profile-stats-grid">
+          <div class="profile-stat-card">
+            <span class="stat-val" id="profileStatWatched">0</span>
+            <span class="stat-lbl">Watched</span>
+          </div>
+          <div class="profile-stat-card">
+            <span class="stat-val" id="profileStatHours">0h</span>
+            <span class="stat-lbl">Hours Logged</span>
+          </div>
+          <div class="profile-stat-card">
+            <span class="stat-val" id="profileStatUniverse">—</span>
+            <span class="stat-lbl">Top Universe</span>
+          </div>
+          <div class="profile-stat-card">
+            <span class="stat-val" id="profileStatRemaining">161</span>
+            <span class="stat-lbl">Remaining</span>
+          </div>
+        </div>
+
+        <!-- Trophies in Profile -->
+        <div class="profile-section-title">🏆 My Trophy Shelf</div>
+        <div class="stats-card glass">
+          <div class="trophies-grid" id="profileTrophiesGrid"></div>
+        </div>
+
+        <!-- Tools Section -->
+        <div class="profile-section-title">🛠️ Tools & Backup</div>
+
+        <div class="tools-card glass">
+          <div class="tools-card-header">
+            <span class="tool-icon">📤</span>
+            <div>
+              <h3>Share Your Progress</h3>
+              <p>Copy a text badge to share with fellow Marvel fans</p>
+            </div>
+          </div>
+          <div class="share-preview glass" id="sharePreviewText">Loading share badge...</div>
+          <button class="tool-action-btn primary-btn" id="copyShareBtn">📋 Copy Progress Badge</button>
+        </div>
+
+        <div class="tools-card glass">
+          <div class="tools-card-header">
+            <span class="tool-icon">💾</span>
+            <div>
+              <h3>Backup & Restore Progress</h3>
+              <p>Export your data as JSON or restore on another device</p>
+            </div>
+          </div>
+          <div class="tool-btn-row">
+            <button class="tool-action-btn glass-btn" id="exportDataBtn">⬇️ Export Backup (JSON)</button>
+            <label class="tool-action-btn glass-btn file-input-label">
+              ⬆️ Import Backup
+              <input type="file" id="importDataInput" accept=".json" style="display:none;">
+            </label>
+          </div>
+        </div>
+
+        <div class="tools-card glass">
+          <div class="tools-card-header">
+            <span class="tool-icon">⚡</span>
+            <div>
+              <h3>Quick Batch Operations</h3>
+              <p>Mark entire sagas or runs as watched at once</p>
+            </div>
+          </div>
+          <div class="tool-btn-grid">
+            <button class="batch-btn glass-btn" id="batchInfinityBtn">✓ Mark Infinity Saga Watched</button>
+            <button class="batch-btn glass-btn" id="batchDoomsdayBtn">✓ Mark Doomsday Run Watched</button>
+            <button class="batch-btn glass-btn" id="batchAllMoviesBtn">✓ Mark All Movies Watched</button>
+          </div>
+        </div>
+
+        <div class="tools-card glass danger-card">
+          <div class="tools-card-header">
+            <span class="tool-icon">⚠️</span>
+            <div>
+              <h3>Danger Zone</h3>
+              <p>Clear all watched items and restore checklist to 0%</p>
+            </div>
+          </div>
+          <button class="danger-btn" id="safeResetBtn">🗑️ Reset All Progress</button>
+        </div>
+      </div>
+
+    </div><!-- /.content-area -->
 
   </div><!-- /.app -->
 
-  <!-- ═══════ DETAIL MODAL ═══════ -->
+  <!-- ═══════ DETAIL MODAL (ENHANCED) ═══════ -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal glass" id="modal">
       <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
@@ -193,8 +501,44 @@
         <div class="modal-badges" id="modalBadges"></div>
         <h2 class="modal-title" id="modalTitle"></h2>
         <p class="modal-meta" id="modalMeta"></p>
-        <p class="modal-desc" id="modalDesc"></p>
-        <div class="modal-relevance" id="modalRelevance"></div>
+
+        <!-- Modal Tabs -->
+        <div class="modal-tabs">
+          <button class="modal-tab-btn active" data-panel="modalPanelOverview">Overview</button>
+          <button class="modal-tab-btn" data-panel="modalPanelCast">Cast</button>
+          <button class="modal-tab-btn" data-panel="modalPanelTrivia">Trivia</button>
+          <button class="modal-tab-btn" data-panel="modalPanelPath">Doomsday Path</button>
+        </div>
+
+        <!-- Panel: Overview -->
+        <div class="modal-panel active" id="modalPanelOverview">
+          <p class="modal-desc" id="modalDesc"></p>
+          <div class="modal-relevance" id="modalRelevance"></div>
+        </div>
+
+        <!-- Panel: Cast & Crew -->
+        <div class="modal-panel" id="modalPanelCast">
+          <div class="director-row">
+            <div>
+              <div class="director-label">Director / Showrunner</div>
+              <div class="director-name" id="modalDirectorName">—</div>
+            </div>
+          </div>
+          <div class="cast-grid" id="modalCastGrid"></div>
+        </div>
+
+        <!-- Panel: Trivia -->
+        <div class="modal-panel" id="modalPanelTrivia">
+          <div class="trivia-list" id="modalTriviaList"></div>
+        </div>
+
+        <!-- Panel: Doomsday Path / Connections -->
+        <div class="modal-panel" id="modalPanelPath">
+          <div class="modal-relevance" id="modalDoomsdayNote"></div>
+          <div id="modalConnections"></div>
+        </div>
+
+        <!-- Actions -->
         <div class="modal-actions">
           <button class="modal-watch-btn" id="modalWatchBtn">✓ Mark as Watched</button>
           <a class="modal-imdb-link" id="modalImdb" href="#" target="_blank" rel="noopener noreferrer">IMDb ↗</a>
@@ -215,37 +559,44 @@
   <!-- ═══════ CONFETTI CANVAS ═══════ -->
   <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
 
-  <!-- ═══════ BOTTOM NAV ═══════ -->
+  <!-- ═══════ BOTTOM NAVIGATION (Mobile) ═══════ -->
   <nav class="bottom-nav">
     <div class="bottom-nav-inner">
-      <button class="nav-btn active" data-go="home" aria-label="Home">
+      <button class="nav-btn active" data-tab="tracker" aria-label="Watch Tracker">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
         </svg>
-        <span>Home</span>
+        <span>Watch</span>
       </button>
-      <button class="nav-btn" data-go="projects" aria-label="All Projects">
+      <button class="nav-btn" data-tab="upnext" aria-label="Up Next">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7"/>
-          <rect x="14" y="3" width="7" height="7"/>
-          <rect x="14" y="14" width="7" height="7"/>
-          <rect x="3" y="14" width="7" height="7"/>
+          <polygon points="5 4 15 12 5 20 5 4"/>
+          <line x1="19" y1="5" x2="19" y2="19"/>
         </svg>
-        <span>Projects</span>
+        <span>Up Next</span>
       </button>
-      <button class="nav-btn" data-go="final" aria-label="Doomsday Run">
+      <button class="nav-btn" data-tab="phases" aria-label="Universe Map">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          <circle cx="12" cy="12" r="10"/>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
         </svg>
-        <span>Doomsday</span>
+        <span>Universe</span>
       </button>
-      <button class="nav-btn" id="resetBtn" aria-label="Reset Progress">
+      <button class="nav-btn" data-tab="stats" aria-label="Stats">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="1 4 1 10 7 10"/>
-          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
         </svg>
-        <span>Reset</span>
+        <span>Stats</span>
+      </button>
+      <button class="nav-btn" data-tab="profile" aria-label="My Profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Profile</span>
       </button>
     </div>
   </nav>
