@@ -1,14 +1,14 @@
 /**
- * Marvel: Road to Doomsday — Service Worker v2
- * Cache-first for app assets, stale-while-revalidate for fonts
+ * Marvel: Road to Doomsday — Service Worker v3
+ * Network-first for HTML/JS/CSS to ensure instant updates, Cache fallback for offline
  */
 
-const CACHE_NAME = 'marvel-doomsday-v2';
+const CACHE_NAME = 'marvel-doomsday-v3.0.1';
 const APP_ASSETS = [
   './',
   './index.html',
-  './styles.css',
-  './app.js',
+  './styles.css?v=3',
+  './app.js?v=3',
   './manifest.webmanifest',
   './icons/icon.svg',
   './icons/icon-192.png',
@@ -16,16 +16,15 @@ const APP_ASSETS = [
   './icons/apple-touch-icon.png'
 ];
 
-// Install: pre-cache core app assets
+// Install: pre-cache core app assets and activate immediately
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_ASSETS)).catch(() => {})
   );
 });
 
-// Activate: clean up old caches
+// Activate: delete ALL old caches immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -36,13 +35,13 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: cache-first for app assets, stale-while-revalidate for fonts
+// Fetch: Network-first for app code, cache fallback when offline
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // Google Fonts: stale-while-revalidate
+  // Google Fonts: Cache with network revalidate
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(
       caches.open(CACHE_NAME).then(cache =>
@@ -58,15 +57,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // App assets: cache-first, fallback to network
+  // App code & pages: Network first, fallback to cache
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+    fetch(event.request)
+      .then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
         return response;
-      }).catch(() => cached);
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });
