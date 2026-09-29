@@ -33,6 +33,30 @@ function saveProfile() {
   localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
 }
 
+// ─── Performance Helpers ───────────────────────────────────
+/**
+ * Debounce: delays fn execution until after `delay` ms since last call.
+ * Used to prevent render() from firing on every keystroke.
+ */
+function debounce(fn, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+/** Pending render frame guard — prevents duplicate rAF calls */
+let _renderPending = false;
+function scheduleRender() {
+  if (_renderPending) return;
+  _renderPending = true;
+  requestAnimationFrame(() => {
+    _renderPending = false;
+    render();
+  });
+}
+
 // ══════════════════════════════════════════════════════════
 // 2. DATA STRUCTURE & SECTION DEFINITIONS
 // ══════════════════════════════════════════════════════════
@@ -3161,6 +3185,18 @@ const projects = rawProjects.map(r => {
 
 const sectionKeysOrdered = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14'];
 
+// ─── Precomputed caches (avoid repeated .filter on every render) ───
+// Built once at startup; used by updateProgressSummary and renderSidebar
+const _projectById = new Map(projects.map(p => [p.id, p]));
+const _infinityProjects = projects.filter(p => ['01', '02', '03'].includes(p.section));
+const _multiverseProjects = projects.filter(p => ['09', '10', '11', '12', '13', '14'].includes(p.section));
+// Projects grouped by section for O(1) section lookup
+const _projectsBySection = {};
+projects.forEach(p => {
+  if (!_projectsBySection[p.section]) _projectsBySection[p.section] = [];
+  _projectsBySection[p.section].push(p);
+});
+
 function escapeHtml(str) {
   return String(str || '').replace(/[&<>"']/g, m => ({
     '&': '&amp;',
@@ -3299,12 +3335,15 @@ function render() {
   }
 
   // Group by Section in release mode or Single Unified List for other sort modes
+  const fragment = document.createDocumentFragment();
+
   if (mode === 'release') {
     const grouped = {};
-    filtered.forEach(p => {
+    for (let i = 0; i < filtered.length; i++) {
+      const p = filtered[i];
       if (!grouped[p.section]) grouped[p.section] = [];
       grouped[p.section].push(p);
-    });
+    }
 
     // Iterate through EXPLICIT ordered section keys 01 -> 14
     sectionKeysOrdered.forEach(secKey => {
@@ -3312,8 +3351,11 @@ function render() {
       if (!list || list.length === 0) return;
 
       const secInfo = sections[secKey];
-      const allSecProjects = projects.filter(p => p.section === secKey);
-      const secDoneCount = allSecProjects.filter(p => !!state[p.id]).length;
+      const allSecProjects = _projectsBySection[secKey] || [];
+      let secDoneCount = 0;
+      for (let i = 0; i < allSecProjects.length; i++) {
+        if (state[allSecProjects[i].id]) secDoneCount++;
+      }
       const secTotalCount = allSecProjects.length;
       const secPct = secTotalCount > 0 ? Math.round((secDoneCount / secTotalCount) * 100) : 0;
 
@@ -3342,16 +3384,22 @@ function render() {
       `;
 
       const bodyEl = sectionEl.querySelector('.phase-body');
-      list.forEach(p => bodyEl.appendChild(createProjectCard(p)));
-      projectList.appendChild(sectionEl);
+      for (let i = 0; i < list.length; i++) {
+        bodyEl.appendChild(createProjectCard(list[i]));
+      }
+      fragment.appendChild(sectionEl);
     });
   } else {
     // Flat list for Chronological, Doomsday, Year, or Alpha Order
     const listContainer = document.createElement('div');
     listContainer.className = 'unified-project-list';
-    filtered.forEach(p => listContainer.appendChild(createProjectCard(p)));
-    projectList.appendChild(listContainer);
+    for (let i = 0; i < filtered.length; i++) {
+      listContainer.appendChild(createProjectCard(filtered[i]));
+    }
+    fragment.appendChild(listContainer);
   }
+
+  projectList.appendChild(fragment);
 
   updateProgressSummary();
   renderSidebar();
@@ -3367,6 +3415,7 @@ function createProjectCard(p) {
   const card = document.createElement('div');
   card.className = `project-card${isDone ? ' done' : ''}${isDoom ? ' doomsday-card' : ''}${isFinal ? ' final-card' : ''}`;
   card.setAttribute('data-rank', p.level);
+  card.setAttribute('data-project-id', p.id);
 
   card.innerHTML = `
     <div class="project-poster ${p.posterClass}">
@@ -3406,7 +3455,29 @@ function toggleProject(id) {
   const wasDone = !!state[id];
   state[id] = !wasDone;
   saveState();
-  render();
+
+  // ⚡ Smart in-place update — avoids rebuilding all 161 DOM cards.
+  // Only update the specific card that changed.
+  const isDoneNow = !wasDone;
+  const cardEl = document.querySelector(`[data-project-id="${CSS.escape(id)}"]`);
+  if (cardEl) {
+    cardEl.classList.toggle('done', isDoneNow);
+    const check = cardEl.querySelector('input[type="checkbox"]');
+    if (check) check.checked = isDoneNow;
+    // Update strikethrough on title
+    const nameEl = cardEl.querySelector('.project-name');
+    if (nameEl) {
+      nameEl.style.textDecoration = isDoneNow ? 'line-through' : '';
+      nameEl.style.color = isDoneNow ? 'var(--text-secondary)' : '';
+    }
+  } else {
+    // Card not in DOM (filtered out) — just refresh
+    render();
+  }
+
+  // Always update the progress summary numbers
+  updateProgressSummary();
+  renderSidebar();
 
   if (!wasDone) {
     checkAchievements(id);
@@ -3414,7 +3485,11 @@ function toggleProject(id) {
 }
 
 function updateProgressSummary() {
-  const doneCount = projects.filter(p => !!state[p.id]).length;
+  // Use precomputed cached arrays — no repeated .filter() calls
+  let doneCount = 0;
+  for (let i = 0; i < projects.length; i++) {
+    if (state[projects[i].id]) doneCount++;
+  }
   const totalCount = projects.length;
   const pct = Math.round((doneCount / totalCount) * 100);
 
@@ -3432,19 +3507,23 @@ function updateProgressSummary() {
   const statRem = document.getElementById('statRemaining');
   if (statRem) statRem.textContent = totalCount - doneCount;
 
-  // Infinity Saga (01 - 03)
-  const infProjects = projects.filter(p => ['01', '02', '03'].includes(p.section));
-  const infDone = infProjects.filter(p => !!state[p.id]).length;
-  const infPct = Math.round((infDone / infProjects.length) * 100);
+  // Use precomputed _infinityProjects cache
+  let infDone = 0;
+  for (let i = 0; i < _infinityProjects.length; i++) {
+    if (state[_infinityProjects[i].id]) infDone++;
+  }
+  const infPct = Math.round((infDone / _infinityProjects.length) * 100);
   const infPctEl = document.getElementById('infinityPct');
   if (infPctEl) infPctEl.textContent = `${infPct}%`;
   const infArc = document.getElementById('infinityArc');
   if (infArc) infArc.setAttribute('stroke-dasharray', `${infPct}, 100`);
 
-  // Multiverse Saga (09 - 14)
-  const multiProjects = projects.filter(p => ['09', '10', '11', '12', '13', '14'].includes(p.section));
-  const multiDone = multiProjects.filter(p => !!state[p.id]).length;
-  const multiPct = Math.round((multiDone / multiProjects.length) * 100);
+  // Use precomputed _multiverseProjects cache
+  let multiDone = 0;
+  for (let i = 0; i < _multiverseProjects.length; i++) {
+    if (state[_multiverseProjects[i].id]) multiDone++;
+  }
+  const multiPct = Math.round((multiDone / _multiverseProjects.length) * 100);
   const mulPctEl = document.getElementById('multiversePct');
   if (mulPctEl) mulPctEl.textContent = `${multiPct}%`;
   const mulArc = document.getElementById('multiverseArc');
@@ -3458,13 +3537,24 @@ function renderSidebar() {
   if (avatarEl) avatarEl.textContent = profile.avatar;
   if (nameEl) nameEl.textContent = profile.heroName || 'Marvel Fan';
 
-  const doneCount = projects.filter(p => !!state[p.id]).length;
+  // Use fast loop instead of .filter()
+  let doneCount = 0;
+  for (let i = 0; i < projects.length; i++) {
+    if (state[projects[i].id]) doneCount++;
+  }
   if (subEl) subEl.textContent = `${doneCount}/161 watched`;
 
-  const infProjects = projects.filter(p => ['01', '02', '03'].includes(p.section));
-  const infPct = Math.round((infProjects.filter(p => !!state[p.id]).length / infProjects.length) * 100);
-  const mulProjects = projects.filter(p => ['09', '10', '11', '12', '13', '14'].includes(p.section));
-  const mulPct = Math.round((mulProjects.filter(p => !!state[p.id]).length / mulProjects.length) * 100);
+  let infDone = 0;
+  for (let i = 0; i < _infinityProjects.length; i++) {
+    if (state[_infinityProjects[i].id]) infDone++;
+  }
+  const infPct = Math.round((infDone / _infinityProjects.length) * 100);
+
+  let mulDone = 0;
+  for (let i = 0; i < _multiverseProjects.length; i++) {
+    if (state[_multiverseProjects[i].id]) mulDone++;
+  }
+  const mulPct = Math.round((mulDone / _multiverseProjects.length) * 100);
 
   const infEl = document.getElementById('sidebarInfinityPct');
   const mulEl = document.getElementById('sidebarMultiversePct');
@@ -4093,8 +4183,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Search & input
-  document.getElementById('searchInput')?.addEventListener('input', render);
+  // Search & input (debounced by 150ms to keep mobile typing fluid without lag)
+  document.getElementById('searchInput')?.addEventListener('input', debounce(render, 150));
   document.getElementById('clearSearchBtn')?.addEventListener('click', () => {
     const input = document.getElementById('searchInput');
     if (input) input.value = '';
