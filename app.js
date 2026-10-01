@@ -3423,21 +3423,28 @@ function createProjectCard(p) {
     </div>
     <div class="project-info">
       <div class="project-name">${String(p.n).padStart(3, '0')} — ${escapeHtml(p.title)}</div>
-      <div class="meta">
-        ${escapeHtml(p.type)} · ${escapeHtml(p.universe)} ${p.year ? `(${p.year})` : '(TBA)'} · ${p.runtime}m
-        <br>
+      <div class="project-meta-line">
+        <span>${escapeHtml(p.type)}</span>
+        <span>·</span>
+        <span>${escapeHtml(p.universe)} ${p.year ? `(${p.year})` : '(TBA)'}</span>
+        <span>·</span>
+        <span>${p.runtime}m</span>
+      </div>
+      <div class="project-badges-row">
         <span class="rank-badge ${rankClass}">${escapeHtml(p.level)}</span>
         ${p.doomsdayRun ? '<span class="doomsday-badge">🔥 FAST TRACK</span>' : ''}
       </div>
     </div>
     <div class="action-zone">
-      <input class="check" type="checkbox" ${isDone ? 'checked' : ''} aria-label="Toggle ${escapeHtml(p.title)}">
-      <span class="project-arrow">›</span>
+      <div class="check-box-wrap" onclick="event.stopPropagation()">
+        <input class="check" type="checkbox" ${isDone ? 'checked' : ''} aria-label="Toggle ${escapeHtml(p.title)}">
+      </div>
+      <span class="project-arrow" aria-hidden="true">›</span>
     </div>
   `;
 
   card.addEventListener('click', (e) => {
-    if (e.target.tagName !== 'INPUT') {
+    if (!e.target.closest('.check-box-wrap') && e.target.tagName !== 'INPUT') {
       showDetail(p);
     }
   });
@@ -3447,6 +3454,17 @@ function createProjectCard(p) {
     e.stopPropagation();
     toggleProject(p.id);
   });
+
+  const checkWrap = card.querySelector('.check-box-wrap');
+  if (checkWrap) {
+    checkWrap.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (e.target.tagName !== 'INPUT') {
+        checkInput.checked = !checkInput.checked;
+        toggleProject(p.id);
+      }
+    });
+  }
 
   return card;
 }

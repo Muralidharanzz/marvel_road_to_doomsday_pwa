@@ -34,6 +34,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
 body {
   background-color: var(--bg);
   color: var(--text);
@@ -41,7 +47,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
-  padding-bottom: 84px; /* Space for 5-button bottom nav */
+  padding-bottom: calc(76px + env(safe-area-inset-bottom, 12px));
   /* Smooth momentum scrolling on iOS */
   -webkit-overflow-scrolling: touch;
   /* Prevent text size adjustment on orientation change */
@@ -81,8 +87,10 @@ body {
 
 .app {
   max-width: 900px;
+  width: 100%;
   margin: 0 auto;
   position: relative;
+  overflow-x: hidden;
 }
 
 /* ═══════ TOPBAR ═══════ */
@@ -93,7 +101,7 @@ header.topbar {
   /* Solid background on mobile — no blur overhead */
   background: rgba(5, 5, 7, 0.97);
   border-bottom: 1px solid var(--border);
-  padding: 10px 14px;
+  padding: max(10px, env(safe-area-inset-top)) 14px 10px;
   /* Promote to own composite layer for sticky perf */
   will-change: transform;
   transform: translateZ(0);
@@ -552,7 +560,8 @@ section.controls#projects {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding: 4px 14px;
+  margin: 0 -14px;
   scrollbar-width: none;
   /* Fast horizontal scrolling on mobile */
   touch-action: pan-x;
@@ -655,7 +664,8 @@ section.controls#projects {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding: 4px 0;
+  padding: 4px 14px;
+  margin: 0 -14px;
   scrollbar-width: none;
   /* Fast horizontal scrolling on mobile */
   touch-action: pan-x;
@@ -773,7 +783,7 @@ main#projectList {
   display: grid;
   grid-template-columns: 42px 1fr auto;
   gap: 10px;
-  padding: 11px 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid #1c2027;
   align-items: center;
   cursor: pointer;
@@ -781,6 +791,7 @@ main#projectList {
   contain: layout style;
   /* Smooth touch response without hover delays */
   touch-action: manipulation;
+  transition: background 0.15s ease;
 }
 
 .project-card:last-child {
@@ -795,6 +806,7 @@ main#projectList {
   opacity: 0.65;
 }
 
+.project-card.done .project-name,
 .project-card.done .project-info h3 {
   text-decoration: line-through;
   color: var(--text-secondary);
@@ -821,6 +833,7 @@ main#projectList {
   background: var(--card);
   border: 1px solid var(--border);
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  flex-shrink: 0;
 }
 
 .poster-mcu { background: linear-gradient(135deg, #40080a, #1a0405); border-color: #731317; }
@@ -833,31 +846,56 @@ main#projectList {
 
 .project-info {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.project-info h3 {
+.project-name {
   font-size: 13.5px;
   font-weight: 700;
   line-height: 1.25;
-  white-space: nowrap;
+  color: var(--text);
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.project-info .num {
-  color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 700;
-  margin-right: 3px;
-}
-
-.project-info .meta {
+.project-meta-line {
   font-size: 11px;
   color: var(--text-secondary);
-  margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.project-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.doomsday-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(225, 18, 27, 0.2);
+  border: 1px solid var(--accent);
+  color: var(--accent-glow);
+  font-size: 8.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .rank-badge {
@@ -867,7 +905,7 @@ main#projectList {
   text-transform: uppercase;
   padding: 2px 6px;
   border-radius: 4px;
-  margin-top: 4px;
+  white-space: nowrap;
 }
 
 .rank-doomsday-critical { background: rgba(225, 18, 27, 0.18); color: #ff5b61; border: 1px solid rgba(225, 18, 27, 0.4); }
@@ -880,21 +918,33 @@ main#projectList {
 .action-zone {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.check-box-wrap {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 8px;
 }
 
 .check {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   accent-color: var(--accent);
   cursor: pointer;
 }
 
 .project-arrow {
-  font-size: 20px;
+  font-size: 19px;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0 4px;
+  padding: 0 2px;
+  user-select: none;
 }
 
 .doomsday-note {
@@ -1797,45 +1847,54 @@ canvas.confetti-canvas {
 nav.bottom-nav {
   position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   z-index: 35;
-  background: rgba(7, 8, 11, 0.95);
+  background: rgba(7, 8, 11, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
 }
 
 .bottom-nav-inner {
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 2px;
-  padding: 6px 8px;
-  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 8px));
 }
 
 button.nav-btn {
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   border-radius: 10px;
-  transition: all 0.2s ease;
-  padding: 6px 0;
+  transition: all 0.15s ease;
+  padding: 4px 0;
   cursor: pointer;
   user-select: none;
+  min-height: 48px;
 }
 
 button.nav-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+}
+
+button.nav-btn span {
+  font-size: 9.5px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 button.nav-btn:hover {
@@ -1844,7 +1903,7 @@ button.nav-btn:hover {
 
 button.nav-btn.active {
   color: var(--accent-glow);
-  background: rgba(225, 18, 27, 0.12);
+  background: rgba(225, 18, 27, 0.14);
 }
 
 button.nav-btn.active svg {
@@ -1915,17 +1974,50 @@ button.nav-btn.active svg {
   outline: none;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 640px) {
   .search-row {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "search search"
+      "sort filter";
+    gap: 8px;
+  }
+  
+  .search-wrap {
+    grid-area: search;
+    width: 100%;
+    height: 44px;
+  }
+  
+  .sort-main-select {
+    grid-area: sort;
+    width: 100%;
+    max-width: none;
+    height: 40px;
+    font-size: 12px;
+    padding: 0 10px;
+  }
+  
+  .filter-btn {
+    grid-area: filter;
+    height: 40px;
+    padding: 0 16px;
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 899px) {
+  .search-row {
+    display: grid;
+    grid-template-columns: 1fr 180px auto;
     gap: 8px;
   }
   
   .sort-main-select {
-    max-width: 150px;
-    font-size: 11.5px;
-    padding: 0 8px;
+    max-width: 180px;
+    font-size: 12px;
+    padding: 0 10px;
   }
 }
 
@@ -2470,7 +2562,710 @@ section.hero > * {
   margin: 24px 0 10px;
 }
 
-.nav-btn span {
-  font-size: 10px;
+/* ══════════════════════════════════════════════════════════ */
+/* PHONE RESOLUTION OPTIMIZATIONS (<= 500px Viewports)         */
+/* ══════════════════════════════════════════════════════════ */
+
+@media (max-width: 500px) {
+  /* 1. Global Viewport & Container Spacing */
+  section.hero#home {
+    padding: 14px 12px 8px;
+  }
+  
+  section.controls#projects {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  
+  main#projectList {
+    padding: 0 12px;
+  }
+  
+  #view-upnext,
+  #view-phases,
+  #view-stats,
+  #view-tools,
+  #view-profile {
+    padding: 0 12px 24px;
+  }
+
+  .tab-header {
+    padding: 12px 12px 8px;
+    gap: 10px;
+  }
+
+  .tab-header-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    border-radius: 12px;
+  }
+
+  .tab-title {
+    font-size: 18px;
+    letter-spacing: -0.02em;
+  }
+
+  .tab-subtitle {
+    font-size: 11px;
+  }
+
+  /* 2. Topbar Scaling & Clean Layout */
+  header.topbar {
+    padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+  }
+
+  .brand-logo-wrap {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .brand-text b {
+    font-size: 13px;
+    letter-spacing: 0.08em;
+  }
+
+  .brand-text span {
+    font-size: 8.5px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Hide the redundant 'Up Next' text button in topbar on phones, as it's directly in the 5-tab bottom nav */
+  .icon-btn-text {
+    display: none;
+  }
+
+  button.icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  /* 3. Hero & Progress Card */
+  .hero-grid {
+    grid-template-columns: 46px 1fr;
+    gap: 10px;
+  }
+
+  .hero-icon-wrap {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+  }
+
+  .hero-icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .hero-title {
+    font-size: 20px;
+  }
+
+  .tagline {
+    font-size: 11.5px;
+  }
+
+  .progress-card {
+    padding: 12px 10px;
+    border-radius: 14px;
+    margin-top: 10px;
+  }
+
+  .progress-done {
+    font-size: 26px;
+  }
+
+  .progress-pct {
+    font-size: 18px;
+  }
+
+  .stats-grid {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .stat-card {
+    padding: 8px 4px;
+    border-radius: 10px;
+  }
+
+  .stat-card b {
+    font-size: 16px;
+  }
+
+  .stat-card span {
+    font-size: 10px;
+  }
+
+  .saga-row {
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .saga-card {
+    padding: 8px 10px;
+    gap: 8px;
+    border-radius: 12px;
+  }
+
+  .saga-ring {
+    width: 34px;
+    height: 34px;
+  }
+
+  .saga-pct {
+    font-size: 13px;
+  }
+
+  .saga-info b {
+    font-size: 11px;
+  }
+
+  .saga-sub {
+    font-size: 9.5px;
+  }
+
+  /* 4. Controls, Chips & Legend */
+  .quick-chips-row,
+  .legend-row {
+    padding: 4px 12px;
+    margin: 0 -12px;
+  }
+
+  .chip {
+    padding: 5px 11px;
+    font-size: 10.5px;
+    min-height: 34px;
+  }
+
+  .legend-item {
+    font-size: 8.5px;
+    padding: 3px 8px;
+  }
+
+  /* 5. Phase Sections & Project Cards */
+  .phase-section {
+    margin-top: 12px;
+    border-radius: 14px;
+  }
+
+  .phase-header {
+    padding: 10px 12px;
+  }
+
+  .phase-header-main {
+    gap: 10px;
+  }
+
+  .phase-ring {
+    width: 32px;
+    height: 32px;
+  }
+
+  .phase-titles h2 {
+    font-size: 13px;
+  }
+
+  .phase-titles p {
+    font-size: 10px;
+  }
+
+  .count-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .project-card {
+    grid-template-columns: 38px 1fr auto;
+    gap: 8px;
+    padding: 9px 10px;
+  }
+
+  .project-poster {
+    width: 38px;
+    height: 48px;
+    font-size: 18px;
+    border-radius: 6px;
+  }
+
+  .project-name {
+    font-size: 12.5px;
+    line-height: 1.25;
+  }
+
+  .project-meta-line {
+    font-size: 10px;
+    gap: 3px;
+  }
+
+  .rank-badge {
+    font-size: 8px;
+    padding: 1.5px 5px;
+  }
+
+  .doomsday-badge {
+    font-size: 8px;
+    padding: 1.5px 5px;
+  }
+
+  .check-box-wrap {
+    width: 38px;
+    height: 38px;
+  }
+
+  .check {
+    width: 20px;
+    height: 20px;
+  }
+
+  .project-arrow {
+    font-size: 17px;
+  }
+
+  .doomsday-note {
+    margin: 12px 12px 20px;
+    padding: 12px;
+    font-size: 11px;
+    border-radius: 12px;
+  }
+
+  /* 6. Up Next & Watch Roulette */
+  .upnext-hero-card {
+    border-radius: 16px;
+    margin-bottom: 12px;
+  }
+
+  .upnext-banner {
+    padding: 12px 12px 0;
+  }
+
+  .upnext-body {
+    padding: 12px;
+  }
+
+  .upnext-poster-row {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .upnext-large-poster {
+    width: 58px;
+    height: 78px;
+    font-size: 28px;
+    border-radius: 8px;
+  }
+
+  .upnext-main-info h2 {
+    font-size: 16px;
+  }
+
+  .upnext-meta {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  .upnext-desc {
+    font-size: 11.5px;
+    margin-bottom: 12px;
+    line-height: 1.45;
+  }
+
+  .upnext-actions {
+    gap: 6px;
+  }
+
+  .upnext-watch-btn {
+    height: 42px;
+    font-size: 12.5px;
+    border-radius: 10px;
+  }
+
+  .upnext-info-btn {
+    height: 42px;
+    font-size: 11.5px;
+    padding: 0 12px;
+    border-radius: 10px;
+  }
+
+  .roulette-card {
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
+  .roulette-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .roulette-title-wrap {
+    gap: 10px;
+  }
+
+  .roulette-icon {
+    font-size: 24px;
+  }
+
+  .roulette-title-wrap h3 {
+    font-size: 13.5px;
+  }
+
+  .roulette-title-wrap p {
+    font-size: 10.5px;
+  }
+
+  .spin-btn {
+    width: 100%;
+    text-align: center;
+    padding: 11px;
+    font-size: 12.5px;
+    border-radius: 10px;
+  }
+
+  .queue-item {
+    grid-template-columns: 32px 1fr auto;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  .queue-item-poster {
+    width: 32px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .queue-item-info h4 {
+    font-size: 12px;
+  }
+
+  .queue-item-info p {
+    font-size: 10px;
+  }
+
+  /* 7. Universe Map / Phases */
+  .order-selector-card {
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
+  .order-selector-card h3 {
+    font-size: 14px;
+  }
+
+  .order-desc {
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+
+  .order-tab-btn {
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+
+  .order-tab-btn b {
+    font-size: 12px;
+  }
+
+  .order-tab-btn span {
+    font-size: 10px;
+  }
+
+  .phase-jump-card {
+    padding: 9px 11px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+
+  .phase-jump-num {
+    font-size: 17px;
+    min-width: 24px;
+  }
+
+  .phase-jump-info h4 {
+    font-size: 12px;
+  }
+
+  .phase-jump-info p {
+    font-size: 10px;
+  }
+
+  /* 8. Stats & Analytics */
+  .time-stats-grid {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .time-card {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .time-label {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .time-value {
+    font-size: 17px;
+  }
+
+  .time-sub {
+    font-size: 9.5px;
+  }
+
+  .stats-card {
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .stats-card h3 {
+    font-size: 13.5px;
+    margin-bottom: 10px;
+  }
+
+  .format-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .format-card {
+    padding: 8px 4px;
+    border-radius: 10px;
+  }
+
+  .format-card .format-icon {
+    font-size: 18px;
+  }
+
+  .format-card b {
+    font-size: 14px;
+  }
+
+  .format-card span {
+    font-size: 8.5px;
+  }
+
+  .trophy-card {
+    padding: 9px 11px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+
+  .trophy-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 17px;
+    border-radius: 8px;
+  }
+
+  .trophy-info h4 {
+    font-size: 12px;
+  }
+
+  .trophy-info p {
+    font-size: 9.5px;
+  }
+
+  /* 9. Profile */
+  .profile-hero-card {
+    padding: 16px 12px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+  }
+
+  .profile-avatar-display {
+    font-size: 46px;
+    margin-bottom: 6px;
+  }
+
+  .profile-hero-name {
+    font-size: 17px;
+  }
+
+  .avatar-picker {
+    max-width: 270px;
+    gap: 6px;
+    margin: 10px auto 12px;
+  }
+
+  .avatar-option {
+    font-size: 22px;
+    padding: 4px 8px;
+    border-radius: 10px;
+  }
+
+  .profile-stats-grid {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .profile-stat-card {
+    padding: 10px 6px;
+    border-radius: 12px;
+  }
+
+  .profile-stat-card .stat-val {
+    font-size: 18px;
+  }
+
+  .profile-stat-card .stat-lbl {
+    font-size: 9px;
+  }
+
+  .tools-card {
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .tools-card-header h3 {
+    font-size: 13.5px;
+  }
+
+  .tools-card-header p {
+    font-size: 10.5px;
+  }
+
+  .share-preview {
+    font-size: 10.5px;
+    padding: 10px;
+  }
+
+  .tool-btn-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .tool-action-btn,
+  .danger-btn {
+    height: 42px;
+    font-size: 12px;
+    border-radius: 10px;
+  }
+
+  .batch-btn {
+    padding: 10px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  /* 10. Detail Modal: Mobile Native Bottom-Sheet */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 90dvh;
+    max-height: 90vh;
+    border-bottom: none;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .modal::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.25);
+    margin: 8px auto 4px;
+  }
+
+  .modal-poster {
+    height: 120px;
+  }
+
+  .modal-poster-icon {
+    font-size: 34px;
+  }
+
+  .modal-poster-title {
+    font-size: 15px;
+    padding: 0 12px;
+  }
+
+  .modal-body {
+    padding: 12px 14px 16px;
+  }
+
+  .modal-title {
+    font-size: 17px;
+  }
+
+  .modal-meta {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .modal-tabs {
+    gap: 2px;
+    margin-top: 10px;
+  }
+
+  .modal-tab-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .modal-desc {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .modal-relevance {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+
+  .cast-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .cast-item {
+    padding: 6px 8px;
+  }
+
+  .cast-item .actor-name {
+    font-size: 11.5px;
+  }
+
+  .cast-item .char-name {
+    font-size: 10.5px;
+  }
+
+  .modal-actions {
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  button.modal-watch-btn {
+    height: 42px;
+    font-size: 12.5px;
+    border-radius: 10px;
+  }
+
+  a.modal-imdb-link {
+    height: 42px;
+    font-size: 11.5px;
+    padding: 0 14px;
+    border-radius: 10px;
+  }
 }
 
